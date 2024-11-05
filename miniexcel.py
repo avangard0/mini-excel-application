@@ -127,6 +127,37 @@ def show_data_from_excel(sheet_name):
     except Exception as e:
         messagebox.showerror("Ошибка", f"Не удалось прочитать данные: {str(e)}")
 
+# Функция для редактирования данных сотрудника по Табельному номеру
+def edit_employee_record():
+    employee_id = entry_employee_id.get()
+    if not employee_id.isdigit():
+        messagebox.showwarning("Ошибка", "Введите числовой табельный номер для редактирования!")
+        return
+    
+    employee_id = int(employee_id)
+    try:
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb['Сотрудники']
+        
+        for row in ws.iter_rows(min_row=2, values_only=False):
+            if row[1].value == employee_id:
+                # Обновляем данные на основе введённых значений
+                row[0].value = entry_fio.get()
+                row[2].value = entry_birth_date.get()
+                row[3].value = int(entry_age.get())
+                row[4].value = entry_position.get()
+                row[5].value = entry_hire_date.get()
+                row[6].value = int(entry_experience.get())
+                row[7].value = float(entry_salary.get())
+                wb.save(file_name)
+                messagebox.showinfo("Успех", "Данные сотрудника успешно обновлены!")
+                return
+        
+        messagebox.showwarning("Ошибка", "Сотрудник с данным табельным номером не найден!")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Ошибка при редактировании: {str(e)}")
+
+
 # Функция для просмотра данных сотрудников
 def view_employee_data():
     show_data_from_excel('Сотрудники')
@@ -298,6 +329,32 @@ def delete_product_record():
     except Exception as e:
         messagebox.showerror("Ошибка", f"Ошибка при удалении: {str(e)}")
 
+# Функция для редактирования данных товара по Наименованию
+def edit_product_record():
+    name = entry_name.get().strip()
+    if not name:
+        messagebox.showwarning("Ошибка", "Введите наименование товара для редактирования!")
+        return
+    
+    try:
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb['Товары']
+        
+        for row in ws.iter_rows(min_row=2, values_only=False):
+            if row[0].value == name:
+                # Обновляем данные на основе введённых значений
+                row[1].value = int(entry_quantity.get())
+                row[2].value = float(entry_price.get())
+                row[3].value = entry_purchased.get().lower() in ['да', 'yes', 'true']
+                row[4].value = float(entry_roi.get())
+                wb.save(file_name)
+                messagebox.showinfo("Успех", "Данные товара успешно обновлены!")
+                return
+        
+        messagebox.showwarning("Ошибка", "Товар с данным наименованием не найден!")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Ошибка при редактировании: {str(e)}")
+
 # Функция для завершения программы
 def exit_program():
     root.quit()
@@ -415,6 +472,12 @@ button_delete_employee.grid(row=12, column=0, columnspan=2, pady=10)
 
 button_delete_product = tk.Button(root, text="Удалить товар по наименованию", command=delete_product_record)
 button_delete_product.grid(row=9, column=3, columnspan=2, pady=10)
+
+button_edit_employee = tk.Button(root, text="Редактировать данные сотрудника", command=edit_employee_record)
+button_edit_employee.grid(row=10, column=0, columnspan=2, pady=10)
+
+button_edit_product = tk.Button(root, text="Редактировать данные товара", command=edit_product_record)
+button_edit_product.grid(row=7, column=3,columnspan=2, pady=10)
 
 # Кнопка для выхода
 button_exit = tk.Button(root, text="Выход", command=exit_program)
