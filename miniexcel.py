@@ -157,6 +157,26 @@ def edit_employee_record():
     except Exception as e:
         messagebox.showerror("Ошибка", f"Ошибка при редактировании: {str(e)}")
 
+# Функция для расчета статистики по зарплате
+def salary_statistics():
+    try:
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb['Сотрудники']
+        
+        salaries = [row[7] for row in ws.iter_rows(min_row=2, values_only=True)]
+        if not salaries:
+            messagebox.showinfo("Результат", "Нет данных о зарплатах сотрудников.")
+            return
+        
+        min_salary = min(salaries)
+        max_salary = max(salaries)
+        median_salary = statistics.median(salaries)
+        
+        messagebox.showinfo("Статистика зарплат", f"Минимальная зарплата: {min_salary:.2f}\n"
+                                                   f"Максимальная зарплата: {max_salary:.2f}\n"
+                                                   f"Медианная зарплата: {median_salary:.2f}")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Ошибка при расчете статистики: {str(e)}")
 
 # Функция для просмотра данных сотрудников
 def view_employee_data():
@@ -478,6 +498,9 @@ button_edit_employee.grid(row=10, column=0, columnspan=2, pady=10)
 
 button_edit_product = tk.Button(root, text="Редактировать данные товара", command=edit_product_record)
 button_edit_product.grid(row=7, column=3,columnspan=2, pady=10)
+
+button_salary_statistics = tk.Button(root, text="Статистика по зарплате сотрудников", command=salary_statistics)
+button_salary_statistics.grid(row=13, column=0,columnspan=2, pady=10)
 
 # Кнопка для выхода
 button_exit = tk.Button(root, text="Выход", command=exit_program)
