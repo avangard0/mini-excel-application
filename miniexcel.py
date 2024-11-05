@@ -135,6 +135,29 @@ def view_employee_data():
 def view_product_data():
     show_data_from_excel('Товары')
 
+# Функция для удаления записи сотрудника по Табельному номеру
+def delete_employee_record():
+    employee_id = entry_employee_id.get()
+    if not employee_id.isdigit():
+        messagebox.showwarning("Ошибка", "Введите числовой табельный номер для удаления!")
+        return
+    
+    employee_id = int(employee_id)
+    try:
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb['Сотрудники']
+        
+        # Находим и удаляем строку
+        for row in ws.iter_rows(min_row=2, values_only=False):
+            if row[1].value == employee_id:
+                ws.delete_rows(row[0].row, 1)
+                wb.save(file_name)
+                messagebox.showinfo("Успех", "Запись сотрудника удалена!")
+                return
+        
+        messagebox.showwarning("Ошибка", "Сотрудник с данным табельным номером не найден!")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Ошибка при удалении: {str(e)}")
 
 # Функция для очистки полей ввода сотрудников
 def clear_employee_entries():
@@ -193,6 +216,30 @@ def submit_product_data():
         data = [name, quantity, price, purchased, roi]
         add_product_data_to_excel(data)
         clear_product_entries()
+
+# Функция для удаления записи товара по Наименованию
+def delete_product_record():
+    name = entry_name.get().strip()
+    if not name:
+        messagebox.showwarning("Ошибка", "Введите наименование товара для удаления!")
+        return
+    
+    try:
+        wb = openpyxl.load_workbook(file_name)
+        ws = wb['Товары']
+        
+        # Находим и удаляем строку
+        for row in ws.iter_rows(min_row=2, values_only=False):
+            if row[0].value == name:
+                ws.delete_rows(row[0].row, 1)
+                wb.save(file_name)
+                messagebox.showinfo("Успех", "Запись товара удалена!")
+                return
+        
+        messagebox.showwarning("Ошибка", "Товар с данным наименованием не найден!")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Ошибка при удалении: {str(e)}")
+
 
 # Функция для очистки полей ввода товаров
 def clear_product_entries():
@@ -363,6 +410,11 @@ button_view_employee.grid(row=11, column=0, columnspan=2, pady=10)
 button_view_product = tk.Button(root, text="Посмотреть данные товаров", command=view_product_data)
 button_view_product.grid(row=8, column=3, columnspan=2, pady=10)
 
+button_delete_employee = tk.Button(root, text="Удалить сотрудника по табельному номеру", command=delete_employee_record)
+button_delete_employee.grid(row=12, column=0, columnspan=2, pady=10)
+
+button_delete_product = tk.Button(root, text="Удалить товар по наименованию", command=delete_product_record)
+button_delete_product.grid(row=9, column=3, columnspan=2, pady=10)
 
 # Кнопка для выхода
 button_exit = tk.Button(root, text="Выход", command=exit_program)
